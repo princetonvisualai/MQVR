@@ -1,0 +1,73 @@
+{
+    "data_loader": {
+        "type": "ExtractedVideoTextLoader",
+        "train_path": "data/msvd/msvd_train.json",
+        "val_path": "data/msvd/msvd_val.json",
+        "test_path": "data/msvd/msvd_test.json",
+        "args": {
+            "video_setting": {
+                "path": "data/msvd/extracted_frames/",
+                "num_frames": 8,
+                "sample": "rand",
+                "fix_start": null
+            },
+            "text_setting": {
+                "sample": "random"
+            },
+            "batch_size": 48,
+            "transform_setting": 1,
+            "num_workers": 10
+        }
+    },
+    "arch": {
+        "type": "VideoTextFeatureExtractor",
+        "args": {
+            "base_setting": {
+                "type": "CLIP4Clip",
+                "args": {
+                    "clip_model": "ViT-B/32",
+                    "fp32": true
+                }
+            },
+            "text_head_setting": {
+                "type": "MeanHead",
+                "args": {}
+            }
+        }
+    },
+    "loss": {
+        "type": "NormSoftmaxLoss",
+        "args": {
+            "temperature": 0.05
+        }
+    },
+    "optimizer": {
+        "args": {
+            "lr": 3e-06
+        },
+        "type": "AdamW"
+    },
+    "lr_scheduler": {
+        "type": "LinearWarmupCosineAnnealingLR",
+        "args": {
+            "max_epochs": 30,
+            "warmup_epochs": 5
+        }
+    },
+    "trainer": {
+        "epochs": 30,
+        "save_dir": "record/",
+        "save_period": 10,
+        "type": "trainer",
+        "verbosity": 2
+    },
+    "metrics": [
+        "retrieval_metric"
+    ],
+    "log_step": 100,
+    "n_gpu": 1,
+    "name": "msvd_clip4clip_base",
+    "use_amp": true,
+    "test_eval_sample": "data/msvd/msvd_test_varying_query_sample_1-20.json",
+    "val_eval_sample": "data/msvd/msvd_val_varying_query_sample_1-20.json"
+}
